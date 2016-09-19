@@ -19,35 +19,28 @@
         <form name="searchForm" ng-submit="search()">
           <textarea rows="4" cols="40" ng-model="shops"></textarea>
         </form>
-        <!-- Radio buttons to control sorting -->
-        <label>
-          <input type="radio" ng-model="auto" ng-value="true">
-          Etsy Rating
-          </label><br/>
-        <label>
-          <input type="radio" ng-model="auto" ng-value="false">
-          Custom Rating Algorithm
-          </label>
       </div>
       <input type="submit" ng-click="search()" value="Submit" />
 
       <!-- Repeated table for each store to list top 5 items -->
-      <div ng-repeat="store in stores" style="padding:10px">
+      <div style="padding:10px">
         <table border=1>
-          <caption style="font-size: 20px; font-weight:bold">{{store.store}}</caption>
+          <caption style="font-size: 20px; font-weight:bold">Term Frequency By Store</caption>
           <col width="20%">
-          <col width="70%">
-          <col width="5%">
-          <col width="5%">
-          <th>Item</th>
-          <th>Description</th>
-          <th>Views</th>
-          <th>Favorited</th>
-          <tr ng-repeat="listing in store.listings" style="font-size:13px">
-            <td>{{listing.title}}</td>
-            <td>{{listing.description}}</td>
-            <td>{{listing.views}}</td>
-            <td>{{listing.num_favorers}}</td>
+          <col width="10%">
+          <col width="10%">
+          <col width="10%">
+          <col width="10%">
+          <col width="10%">
+          <th>Store</th>
+          <th>1st</th>
+          <th>2nd</th>
+          <th>3rd</th>
+          <th>4th</th>
+          <th>5th</th>
+          <tr ng-repeat="store in stores" style="font-size:13px">
+            <td>{{store.name}}</td>
+            <td ng-repeat="word in store.topFive">"{{word[0]}}": {{word[1]}} times</td>
           </tr>
         </table>
       </div>
