@@ -6,36 +6,18 @@ simon.factory('EtsyFactory', function ($http) {
     let listingsUrlBase = 'listings/active.js';
     let apiKey = 'h2e7qbewfwmq0cmh2lefa5kg';
 
+    EtsyFactoryObj.getTerms = function (stores) {
+        
+        //Define words or fragments that should not be considered meaningful to be used in purgeText
+        let garbage = ['the', 'a', 'and', 'it', 'an', 'quot', 'is', 'in', 'http', 'com', 'www', 'to', 'for', 'of', 'this'];
 
-    EtsyFactoryObj.getListingsAuto = function (stores) {
+        //Helper func to combine text from different listings into large arrays and LowerCased
+        let transformText = (text, master) => master.concat(text.toLowerCase().split(/\W/));
+        
+        //Helper func to purge empty strings and unwanted words and fragments
+        let purgeText = (text) => text.filter(w => garbage.indexOf(w) == -1 && Boolean(w));
+
         let storePromises = stores.map(function (store) {
-            let etsyResponse = {};
-            //Fetch listings for each store, limited to the 5 highest scoring
-            return $http({
-                url: shopUrlBase + store + '/' + listingsUrlBase,
-                method: "JSONP",
-                params: { api_key: apiKey, sort_on: 'score', limit: 5, callback: 'JSON_CALLBACK' }
-            })
-                .success(function (data) {
-                    etsyResponse.status = "Success";
-                    etsyResponse.data = data;
-                })
-                .error(function (data) {
-                    etsyResponse.status = "Failed";
-                    etsyResponse.data = data;
-                })
-        })
-        return Promise.all(storePromises).then(stores => {
-            return stores.map(function (store) {
-                return { store: store.data.params.shop_id, listings: store.data.results }
-            })
-
-        });
-    };
-
-    EtsyFactoryObj.getListingsCustom = function (stores) {
-        let storePromises = stores.map(function (store) {
-
             let etsyResponse = {};
             //Fetch listings for each store via JSONP query with no limit or sorting
             return $http({
@@ -52,31 +34,85 @@ simon.factory('EtsyFactory', function ($http) {
                     etsyResponse.data = data;
                 })
         })
-        return Promise.all(storePromises).then(stores => {
 
+        return Promise.all(storePromises)
+        .then(stores => {
+           
             //Go through each store...
-            stores.forEach(function (store) {
-
-                //...to add a popularity field to each listing by multiplying the % of favorites by the log of views
+            stores = stores.map(function (store) {
+                let masterTitle = [];
+                let masterDescription = [];
+                let storeDict = {};
+                //...to gather all descriptive text from listings
                 store.data.results.forEach(function (result) {
-                    if (result.views == 0) result.popularity = 0;
-                    else result.popularity = (result.num_favorers / result.views) * Math.log(result.views);
-                })
+                    masterTitle = transformText(result.title, masterTitle)
+                    masterDescription = transformText(result.description, masterDescription);
+                });
 
-                //Then sort by popularity
-                store.data.results.sort(function (a, b) {
-                    return b.popularity - a.popularity;
-                })
+                //Purge all undesired fragments and words
+                masterTitle = purgeText(masterTitle)
+                masterDescription = purgeText(masterDescription)
 
-                //And finally remove all but the five most popular
-                store.data.topFive = store.data.results.slice(0, 5);
+                
+                //Counters for top 5 words
+                let topFive = {};
+                let fifth = "";
+
+                //Set max iterations
+                let longer = masterDescription.length > masterTitle.length ? masterDescription.length : masterTitle.length;
+                for (let i = 0; i < longer; i++) {
+                    if (masterTitle[i]) {
+                        if (!storeDict[masterTitle[i]]) storeDict[masterTitle[i]] = 1;
+                        else storeDict[masterTitle[i]] += 1;
+                    }
+                    if (masterDescription[i]) {
+                        if (!storeDict[masterDescription[i]]) storeDict[masterDescription[i]] = 1;
+                        else storeDict[masterDescription[i]] += 1;
+                    }
+
+                //Check if words are in top 5 and recalculate smallest top 5 if necessary
+                    if (!topFive[fifth] || topFive[fifth] < storeDict[masterTitle[i]]) {
+                        topFive[masterTitle[i]] = storeDict[masterTitle[i]];
+                        if (Object.keys(topFive).length > 5) {
+                            delete topFive[fifth];
+                            let lowest = topFive[masterTitle[i]];
+                            Object.keys(topFive).forEach(key => {
+                                if (topFive[key] <= lowest){
+                                     fifth = key;
+                                     lowest = topFive[fifth];
+                                }
+                            })
+                        }
+                    }
+
+                    //Check if words are in top 5 and recalculate smallest top 5 if necessary
+                    if (!topFive[fifth] || topFive[fifth] < storeDict[masterDescription[i]]) {
+                        topFive[masterDescription[i]] = storeDict[masterDescription[i]];
+                        if (Object.keys(topFive).length > 5) {
+                            delete topFive[fifth];
+                            let lowest = topFive[masterDescription[i]];
+                            Object.keys(topFive).forEach(key => {
+                                if (topFive[key] <= lowest){
+                                     fifth = key;
+                                     lowest = topFive[fifth];
+                                }
+                            })
+
+                        }
+                    }
+
+                }
+
+                //Attach each store's top 5 most common terms
+                store.topFive = Object.keys(topFive).map(key=>[key, topFive[key]]);
+                return {name: store.data.params.shop_id, topFive: store.topFive};
+                
             })
 
-            return stores.map(function (store) {
-                return { store: store.data.params.shop_id, listings: store.data.topFive }
-            })
-
+            //Return stores to controller
+            return stores;
         });
+
     };
 
     return EtsyFactoryObj;
