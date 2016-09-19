@@ -1,0 +1,12 @@
+{
+  "name": "simon-etsy",
+  "version": "1.0.0",
+  "description": "Pulls data from Etsy stores and ranks most popular items",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --watch start.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
