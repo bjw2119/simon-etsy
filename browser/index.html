@@ -1,53 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Etsy Top 5 Query</title>
-    <!--<link href="/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
-    <link href="/bootstrap-dark.css" rel="stylesheet" />-->
-    <!--<link href="/style.css" rel="stylesheet" />-->
-    <script src="/angular/angular.js" defer></script>
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
-    <script src="/js/module.js" defer></script>
-    <script src="/js/EtsyFactory.js" defer></script>
-  </head>
-  <body ng-app="simon">
-    <h1 style="text-align:center">Etsy Top 5 Listings by Seller</h1>
-    <h3 style="text-align:center">Enter in the names of Etsy sellers separated by a space to view their 5 most popular items</h3>
-    <div ng-controller="MainCtrl" id="main" class="container-fluid">
-      <div>
-          <div layout="row">
-          <form name="searchForm" ng-submit="search()">
-              <textarea rows="4" cols="40" ng-model="shops"></textarea>
-          </form>
-          <label>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Etsy Top 5 Query</title>
+  <script src="/angular/angular.js" defer></script>
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+  <script src="/js/module.js" defer></script>
+  <script src="/js/EtsyFactory.js" defer></script>
+</head>
+
+<body ng-app="simon">
+  <h1 style="text-align:center">Etsy Top 5 Listings by Seller</h1>
+  <h3 style="text-align:center">Enter in the names of Etsy sellers separated by a space to view their 5 most popular items</h3>
+  <div ng-controller="MainCtrl" id="main" class="container-fluid">
+    <div>
+      <div layout="row">
+        <form name="searchForm" ng-submit="search()">
+          <textarea rows="4" cols="40" ng-model="shops"></textarea>
+        </form>
+        <!-- Radio buttons to control sorting -->
+        <label>
           <input type="radio" ng-model="auto" ng-value="true">
           Etsy Rating
           </label><br/>
-          <label>
+        <label>
           <input type="radio" ng-model="auto" ng-value="false">
           Custom Rating Algorithm
           </label>
-          </div>
-          <input type="submit" ng-click="search()" value="Submit"/>
-          <div ng-repeat="store in stores" style="padding:10px">
-          <table border=1>
-            <caption style="font-size: 20px; font-weight:bold">{{store.store}}</caption>
-            <col width="20%">
-            <col width="70%">
-            <col width="5%">
-            <col width="5%">
-            <th>Item</th>
-            <th>Description</th>
-            <th>Views</th>
-            <th>Favorited</th>
-            <tr ng-repeat="listing in store.listings" style="font-size:13px">
-                <td>{{listing.title}}</td>
-                <td>{{listing.description}}</td>
-                <td>{{listing.views}}</td>
-                <td>{{listing.num_favorers}}</td>
-            </tr>
-          </table>
+      </div>
+      <input type="submit" ng-click="search()" value="Submit" />
+
+      <!-- Repeated table for each store to list top 5 items -->
+      <div ng-repeat="store in stores" style="padding:10px">
+        <table border=1>
+          <caption style="font-size: 20px; font-weight:bold">{{store.store}}</caption>
+          <col width="20%">
+          <col width="70%">
+          <col width="5%">
+          <col width="5%">
+          <th>Item</th>
+          <th>Description</th>
+          <th>Views</th>
+          <th>Favorited</th>
+          <tr ng-repeat="listing in store.listings" style="font-size:13px">
+            <td>{{listing.title}}</td>
+            <td>{{listing.description}}</td>
+            <td>{{listing.views}}</td>
+            <td>{{listing.num_favorers}}</td>
+          </tr>
+        </table>
       </div>
     </div>
-  </body>
+</body>
+
 </html>

@@ -2,6 +2,8 @@
 var path = require('path');
 var express = require('express');
 var app = express();
+
+//Start server on port 1990
 var server = app.listen(1990, function(){
     console.log("Server started on port 1990");
 });
@@ -12,6 +14,7 @@ let browserPath = path.join(root, './browser');
 let homePath = path.join(root, './app/views/index.html');
 console.log(homePath);
 
+//Serves up static files
 app.use(express.static(npmPath));
 app.use(express.static(browserPath));
 app.use(express.static(homePath));
