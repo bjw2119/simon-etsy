@@ -60,7 +60,6 @@ simon.factory('EtsyFactory', function ($http) {
 
                 //Set max iterations
                 let longer = masterDescription.length > masterTitle.length ? masterDescription.length : masterTitle.length;
-                console.log("Length: ", longer);
                 for (let i = 0; i < longer; i++) {
                     if (masterTitle[i]) {
                         if (!storeDict[masterTitle[i]]) storeDict[masterTitle[i]] = 1;
