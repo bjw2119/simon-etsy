@@ -9,7 +9,7 @@ simon.factory('EtsyFactory', function ($http) {
     EtsyFactoryObj.getTerms = function (stores) {
 
         //Define words or fragments that should not be considered meaningful to be used in purgeText
-        let garbage = ['the', 'a', 'and', 'it', 'an', 'quot', 'is', 'in', 'http', 'com', 'www', 'to', 'for', 'of', 'this'];
+        let garbage = ['the', '39', 'a', 'and', 'it', 'an', 'quot', 'is', 'in', 'http', 'com', 'www', 'to', 'for', 'of', 'this'];
 
         //Helper func to combine text from different listings into large arrays and LowerCased
         let transformText = (text, master) => master.concat(text.toLowerCase().split(/\W/));
@@ -60,6 +60,7 @@ simon.factory('EtsyFactory', function ($http) {
 
                 //Set max iterations
                 let longer = masterDescription.length > masterTitle.length ? masterDescription.length : masterTitle.length;
+                console.log("Length: ", longer);
                 for (let i = 0; i < longer; i++) {
                     if (masterTitle[i]) {
                         if (!storeDict[masterTitle[i]]) storeDict[masterTitle[i]] = 1;
