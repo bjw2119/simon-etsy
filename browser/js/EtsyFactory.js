@@ -7,13 +7,13 @@ simon.factory('EtsyFactory', function ($http) {
     let apiKey = 'h2e7qbewfwmq0cmh2lefa5kg';
 
     EtsyFactoryObj.getTerms = function (stores) {
-        
+
         //Define words or fragments that should not be considered meaningful to be used in purgeText
         let garbage = ['the', 'a', 'and', 'it', 'an', 'quot', 'is', 'in', 'http', 'com', 'www', 'to', 'for', 'of', 'this'];
 
         //Helper func to combine text from different listings into large arrays and LowerCased
         let transformText = (text, master) => master.concat(text.toLowerCase().split(/\W/));
-        
+
         //Helper func to purge empty strings and unwanted words and fragments
         let purgeText = (text) => text.filter(w => garbage.indexOf(w) == -1 && Boolean(w));
 
@@ -37,7 +37,7 @@ simon.factory('EtsyFactory', function ($http) {
 
         return Promise.all(storePromises)
         .then(stores => {
-           
+
             //Go through each store...
             stores = stores.map(function (store) {
                 let masterTitle = [];
@@ -53,7 +53,7 @@ simon.factory('EtsyFactory', function ($http) {
                 masterTitle = purgeText(masterTitle)
                 masterDescription = purgeText(masterDescription)
 
-                
+
                 //Counters for top 5 words
                 let topFive = {};
                 let fifth = "";
@@ -104,9 +104,10 @@ simon.factory('EtsyFactory', function ($http) {
                 }
 
                 //Attach each store's top 5 most common terms
-                store.topFive = Object.keys(topFive).map(key=>[key, topFive[key]]);
-                return {name: store.data.params.shop_id, topFive: store.topFive};
-                
+                let topFiveKeys = Object.keys(topFive).sort((a,b)=> topFive[b]-topFive[a])
+                store.topFive = Object.keys(topFive).map(key=>[key, topFive[key]]).sort((a,b)=>b[1]-a[1]);
+                return {name: store.data.params.shop_id, topFive: store.topFive, order: topFiveKeys};
+
             })
 
             //Return stores to controller
